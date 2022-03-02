@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+}
+
+group 'ru.paradigmasoft'
+version '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Selenide
+    testImplementation("com.codeborne:selenide:6.3.2"
+    )
+
+    // JUnit 5 (latest ver)
+    testImplementation (
+            "org.junit.jupiter:junit-jupiter:5.8.2",
+            "org.junit.jupiter:junit-jupiter-api:5.8.2"
+    )
+
+    testRuntimeOnly("org.slf4j:slf4j-simple:1.7.32") //техническое для сокращения лога запуска теста
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+}
+
+//техническое для сокращения лога запуска теста
+def selenideVersion = "6.2.1",
+    junitVersion = "5.8.2",
+    slf4jVersion = "1.7.32"
+
+//fix: кириллица
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+//кириллица
+//compileTestJava {
+//   options.encoding = 'UTF-8'
+//}
+
+test {
+    useJUnitPlatform()
+}
