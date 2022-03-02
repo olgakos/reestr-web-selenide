@@ -21,7 +21,6 @@ public class Reestr01DemoMissionsTests {
     void preconditionBrowser() {
         baseUrl = "http://62.152.34.179:8080";
         browserSize = "1920x1080";
-        //sleep(30000);
     }
 
     @AfterEach
