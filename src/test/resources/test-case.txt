@@ -4,15 +4,52 @@
 2. Логин: Stranger
 3. Пароль: 66PojexoIEB0
 4. Перейти на страницу Командировки: http://62.152.34.179:8080/Missions
-5. Заполнить Календарь: 01.01.2019 - 31.03.2022 (ок)
+5. Заполнить Календарь: 01.01.2019 - 31.03.2022 (ок, работает)
 
 А2 Кейсы: (разные шаги + разные данные)
 а) заполнить поле (текстовое) Место командировки = Псков (ок, работает)
-б) заполнить поле (фиксированный! вып.список) "Место работы" = Компания 2 (??)
-в) заполнить поле (динамичный! выпадающий список) "Командируемый" = TestMan2 (??)
+б) заполнить поле (динамичный! выпадающий список) "Командируемый" = TestMan2 (??)
+в) заполнить поле (фиксированный! вып.список) "Место работы" = Компания 2 (??)
 
 А3 Общие шаги для всех трех кейсов:
 1. Кнопка "запрос" (с круглыми стрелочками)
 2. Проверка: в списке выдаче будут строка с ID = 12
+======================================================
 
+2 проблемных теста (их начало на строках №69 и №86) лежат вот здесь: 
+https://github.com/olgakos/reestr-web-selenide/blob/master/src/test/java/ru/pagadigmasoft/Reestr01DemoMissionsTests.java
+=====================================================
+Замечание 1
+! Проблемный _динамический_ выпадающий список худо-бедно аботает вот так на Селениуме. 
+На Селениде не могу подобрать аналог:
 
+[Test]
+public void Filters_StaffID()
+{inputText("Filters_StaffID", "TestMan2", "12");}
+
+public void inputText(String elementName, String elementInput, String tableId){
+
+            app.Driver.FindElement(By.Name(elementName)).SendKeys(elementInput + Keys.Enter);
+            app.Filters.RefreshFiltersButton(); // нажали кнопку "запрос"
+            app.Driver.FindElement(By.XPath("//tr[@id=" + tableId + "]/td")).Click();
+        }
+===================
+Замечание 1
+! Проблемный _фиксированный_ выпадающий value-список худо-бедно работает вот с таким многоэтажным JS на Селениуме. 
+На Селениде не могу подобрать аналог:
+//<option value="2">Компания 2</option>
+
+[Test]
+public void Filters_Firm()
+{inputValue("Filters_Firm", "Компания 2", "12");}
+
+public void inputValue(String elementName, int inputValue, String tableId)
+        {
+            new WebDriverWait(app.Driver, TimeSpan.FromSeconds(10)).Until<bool>
+            (d => app.Driver.FindElement(By.Name(elementName)).Displayed);
+            (app.Driver as IJavaScriptExecutor).ExecuteScript
+            (String.Format("$('select[name=" + elementName + "]').val(" + inputValue + ").trigger('change')"));
+            app.Filters.RefreshFiltersButton();
+            app.Driver.FindElement(By.XPath("//tr[@id=" + tableId + "]/td")).Click(); 
+        }
+===================
