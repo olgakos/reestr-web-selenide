@@ -4,15 +4,92 @@
 2. Логин: Stranger
 3. Пароль: 66PojexoIEB0
 4. Перейти на страницу Командировки: http://62.152.34.179:8080/Missions
-5. Заполнить Календарь: 01.01.2019 - 31.03.2022 (ок)
+
 
 А2 Кейсы: (разные шаги + разные данные)
 а) заполнить поле (текстовое) Место командировки = Псков (ок, работает)
-б) заполнить поле (фиксированный! вып.список) "Место работы" = Компания 2 (??)
-в) заполнить поле (динамичный! выпадающий список) "Командируемый" = TestMan2 (??)
+б) заполнить поле (динамичный! выпадающий список) "Командируемый" = TestMan2 (?? не работает)
+в) заполнить поле (фиксированный! вып.список) "Место работы" = "Компания 3" (UPD: ок, работает с JS см. ниже)
 
 А3 Общие шаги для всех трех кейсов:
 1. Кнопка "запрос" (с круглыми стрелочками)
 2. Проверка: в списке выдаче будут строка с ID = 12
 
+======================================================
+======================================================
+UPD 2022-03-05:
 
+1 проблемный тест: void filterValueAssertFalse()
+Не запускается
+Лежит вот здесь:
+https://github.com/olgakos/reestr-web-selenide/blob/master/src/test/java/ru/pagadigmasoft/Reestr01DemoMissionsTests.java
+
+Примечание:
+Проблемный _динамический_ выпадающий список наботал на _Селениум2_ вот так, где:
+
+name=Filters_StaffID //локатор поля ввода
+"TestMan2" //тестовые данные
+"12" //одижаемый результат выдачи, поле с id=12
+
+[Test]
+public void Filters_StaffID()
+{inputText("Filters_StaffID", "TestMan2", "12");}
+
+public void inputText(String elementName, String elementInput, String tableId){
+
+            app.Driver.FindElement(By.Name(elementName)).SendKeys(elementInput + Keys.Enter);
+            app.Filters.RefreshFiltersButton(); // нажали кнопку "запрос"
+            app.Driver.FindElement(By.XPath("//tr[@id=" + tableId + "]/td")).Click();
+        }
+
+на Селениде не могу подобрать аналог ((((((
+
+ВОПРОС: как заставить его запускаться? )))
+
+
+======================================================
+======================================================
+проблемный тест №2 (UPD: есть вараинт решения, см. ниже!!!!!)
+
+2 проблемный тест: void filterValue()
+Это _фиксированный_(!) выпадающий список:
+Лежит вот здесь:
+https://github.com/olgakos/reestr-web-selenide/blob/master/src/test/java/ru/pagadigmasoft/Reestr01DemoMissionsTests.java
+
+Сейчас он успешно работает с примемением JS.
+Вывод дает верный, НО визульно не показывает на странице, чем было заполенно поле ввода ((
+
+Работоспособный пример кода, где:
+name=Filters_Firm //локатор поля ввода
+"Компания 3" //тестовые данные
+"3" //одижаемый результат выдачи, поле с id=3
+---------------
+На Селениум-2:
+[Test]
+public void Filters_Firm()
+{inputValue("Filters_Firm", "Компания 3", "3");}
+public void inputValue(String elementName, int inputValue, String tableId)
+        {
+            new WebDriverWait(app.Driver, TimeSpan.FromSeconds(10)).Until<bool>
+            (d => app.Driver.FindElement(By.Name(elementName)).Displayed);
+            (app.Driver as IJavaScriptExecutor).ExecuteScript
+            (String.Format("$('select[name=" + elementName + "]').val(" + inputValue + ").trigger('change')"));
+            app.Filters.RefreshFiltersButton();
+            app.Driver.FindElement(By.XPath("//tr[@id=" + tableId + "]/td")).Click();
+        }
+---------------
+На Селениде
+    @Test
+    @DisplayName("Поиск в value-списке")
+    void filterValue() {
+        loginBase();
+        open("/Missions");
+        $(byName("Filters_Firm")).shouldBe(visible, Duration.ofSeconds(10));
+        Selenide.executeJavaScript("$('select[name=Filters_Firm]').val('3').trigger('change')");
+        $("#refresh_button").click(); // кнопка
+        $$("td").find(text("3")).shouldBe(visible); //проверка
+    }
+
+ ВОПРОС: Если ли лУчшие решения для таких списков, наприемет чтобы визуальнро было видно, чето введено в поле?
+======================================================
+======================================================
