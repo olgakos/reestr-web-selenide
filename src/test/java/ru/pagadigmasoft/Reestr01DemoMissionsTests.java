@@ -18,7 +18,9 @@ import static com.codeborne.selenide.Selenide.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @DisplayName("Кадры:Командировки")
-public class Reestr01DemoMissionsTests {
+public class Reestr01DemoMissionsTests //extends DropdowenList
+
+{
     String userName = "Stranger";
     String userPassword = "66PojexoIEB0";
 
@@ -32,29 +34,8 @@ public class Reestr01DemoMissionsTests {
         Selenide.closeWebDriver();
     }
 
+    //Основное место работы:<option value="3">Компания 3</option>
     @Test
-    //Командируемый: Filters_StaffID == TestMan3
-    @DisplayName("Bad: Поиск в динамичном списке")
-    void filterDinamic() {
-        loginBase();
-        open("/Missions");
-
-        $(byName("Filters_StaffID")).shouldBe(visible, Duration.ofSeconds(10));
-        //+
-        Selenide.executeJavaScript("$('select[name=Filters_StaffID]').val('TestMan3').trigger('change')");
-        //Selenide.executeJavaScript("$('select[class=select2-search__field]').typeText('TestMan3').trigger('change')");
-
-        //$("[name=Filters_StaffID]").setValue("TestMan3").pressEnter(); //не раб.
-        //$("[name=Filters_StaffID]").$(".dropdown-wrapper").setValue("TestMan3").pressEnter(); //не раб.
-        sleep(5000);
-        $("#refresh_button").click(); // кнопка
-        sleep(5000);
-        $$("td").find(text("3")).shouldBe(visible); //проверка6 в выдаче только 1 запись, где id=3
-    }
-
-    @Test
-    //Основное место работы:
-    //<option value="3">Компания 3</option>
     @DisplayName("NEW!Поиск в value-списке(ок)")
     void filterValue() {
         loginBase();
@@ -70,9 +51,8 @@ public class Reestr01DemoMissionsTests {
         sleep(3000);
     }
 
+    //Основное место работы:т <option value="3">Компания 3</option>
     @Test
-    //Основное место работы:
-    //<option value="3">Компания 3</option>
     @DisplayName("New!False(exp) Поиск в value-списке")
     void filterValueAssertFalse() {
         loginBase();
@@ -133,6 +113,38 @@ public class Reestr01DemoMissionsTests {
        sleep(1000);
        $$(".home_welcome").find(text("Добро пожаловать")).shouldBe(visible); // контроль: главная стр
    }
+
+    //--------------------------------------------------------
+    /*
+    @Test
+    //Командируемый: Filters_StaffID == TestMan3
+    @DisplayName("Bad: Поиск в динамичном списке")
+    void filterDinamic() {
+        loginBase();
+        open("/Missions");
+
+        //new DropdownList($("[name='Filters_StaffID']").sibling(0).$(".select2-container")).selectByIndex(0);
+        new DropdownList($("[name='Filters_StaffID']").sibling(0).$(".select2-container")).searchElement("TestMan3");
+
+
+        //$(byName("Filters_StaffID")).shouldBe(visible, Duration.ofSeconds(10));
+        //+
+        //Selenide.executeJavaScript("$('select[name=Filters_StaffID]').val('TestMan3').trigger('change')");
+        //или
+        //Selenide.executeJavaScript("$('select[class=select2-search__field]').typeText('TestMan3').trigger('change')");
+
+
+        //$("[name=Filters_StaffID]").setValue("TestMan3").pressEnter(); //не раб.
+        //$("[name=Filters_StaffID]").$(".dropdown-wrapper").setValue("TestMan3").pressEnter(); //не раб.
+        sleep(5000);
+        $("#refresh_button").click(); // кнопка
+        sleep(5000);
+        $$("td").find(text("3")).shouldBe(visible); //проверка6 в выдаче только 1 запись, где id=3
+    }
+
+*/
+
+//----------------------------------------------------
 }
 
 
